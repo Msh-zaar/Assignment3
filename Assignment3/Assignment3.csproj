@@ -14,4 +14,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\DTOs\Character\" />
+    <Folder Include="Models\DTOs\Movie\" />
+    <Folder Include="Models\DTOs\Franchise\" />
+  </ItemGroup>
+
 </Project>
