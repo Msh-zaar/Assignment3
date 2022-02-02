@@ -16,6 +16,7 @@ namespace Assignment3.Models
         [MaxLength(50)]
         public string Genre { get; set; }
         [Required]
+        [MaxLength(4)]
         public int ReleaseYear { get; set; }
         [Required]
         [MaxLength(50)]

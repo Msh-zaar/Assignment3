@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Assignment3.Migrations
 {
     [DbContext(typeof(MovieDbContext))]
-    [Migration("20220131143132_InitialDB")]
-    partial class InitialDB
+    [Migration("20220202195512_initialDB")]
+    partial class initialDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -141,6 +141,7 @@ namespace Assignment3.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("ReleaseYear")
+                        .HasMaxLength(4)
                         .HasColumnType("int");
 
                     b.Property<string>("Title")

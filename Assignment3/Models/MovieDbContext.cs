@@ -11,16 +11,8 @@ namespace Assignment3.Models
         public DbSet<Franchise> Franchises { get; set; }
         public DbSet<Movie> Movies { get; set; }
 
-        public MovieDbContext([NotNullAttribute] DbContextOptions options) : base(options) 
+        public MovieDbContext(DbContextOptions options) : base(options) 
         {
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            // hjemme DESKTOP-8LK9FE7\\SQLEXPRESS
-            // skole ND-5CG8473X7D\\SQLEXPRESS
-            base.OnConfiguring(optionsBuilder); 
-            optionsBuilder.UseSqlServer("Data Source=ND-5CG8473X7D\\SQLEXPRESS;Integrated Security=true;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,7 +37,7 @@ namespace Assignment3.Models
             modelBuilder.Entity<Franchise>()
                 .HasData(new Franchise { Id = 2, Name = "Lord of the Rings", Description = "" });
             modelBuilder.Entity<Franchise>()
-                .HasData(new Franchise { Id = 3, Name = "HArry Potter", Description = "" });
+                .HasData(new Franchise { Id = 3, Name = "Harry Potter", Description = "" });
 
             // Seed m2m
             modelBuilder.Entity<Movie>()

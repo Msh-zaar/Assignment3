@@ -2,7 +2,7 @@
 
 namespace Assignment3.Migrations
 {
-    public partial class InitialDB : Migration
+    public partial class initialDB : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -44,7 +44,7 @@ namespace Assignment3.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Genre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    ReleaseYear = table.Column<int>(type: "int", nullable: false),
+                    ReleaseYear = table.Column<int>(type: "int", maxLength: 4, nullable: false),
                     Director = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Picture = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Trailer = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),

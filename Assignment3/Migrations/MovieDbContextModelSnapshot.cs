@@ -139,6 +139,7 @@ namespace Assignment3.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("ReleaseYear")
+                        .HasMaxLength(4)
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
