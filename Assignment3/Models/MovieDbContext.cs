@@ -17,7 +17,9 @@ namespace Assignment3.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            base.OnConfiguring(optionsBuilder);
+            // hjemme DESKTOP-8LK9FE7\\SQLEXPRESS
+            // skole ND-5CG8473X7D\\SQLEXPRESS
+            base.OnConfiguring(optionsBuilder); 
             optionsBuilder.UseSqlServer("Data Source=ND-5CG8473X7D\\SQLEXPRESS;Integrated Security=true;");
         }
 
