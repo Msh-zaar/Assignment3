@@ -22,6 +22,5 @@ namespace Assignment3.Models
         public string Photo { get; set; }
         // Relationships
         public ICollection<Movie> Movies { get; set; }
-
     }
 }
