@@ -1,4 +1,6 @@
-﻿namespace Assignment3.Models.DTOs.Franchise
+﻿using System.Collections.Generic;
+
+namespace Assignment3.Models.DTOs.Franchise
 {
     public class MovieCreateDTO
     {
