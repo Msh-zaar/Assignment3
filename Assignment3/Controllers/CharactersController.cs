@@ -12,7 +12,7 @@ using AutoMapper;
 
 namespace Assignment3.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/characters")]
     [ApiController]
     [Produces("application/json")]
     [Consumes("application/json")]
@@ -28,20 +28,25 @@ namespace Assignment3.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Get all Characters
+        /// </summary>
+        /// <returns>List of Characters</returns>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IEnumerable<CharacterReadDTO>> GetAllCharacters()
+        public async Task<IEnumerable<CharacterReadDTO>> GetCharacters()
         {
-            var characters = await _repository.GetAllCharactersAsync();
-            var charReadDTO = _mapper.Map<List<CharacterReadDTO>>(characters);
+            IEnumerable<Character> characters = await _repository.GetAllCharactersAsync();
+            List<CharacterReadDTO> charReadDTO = _mapper.Map<List<CharacterReadDTO>>(characters);
 
             return charReadDTO;
         }
 
-        // GET: api/Characters/5
+        /// <summary>
+        /// Get specified Character
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>A Character</returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CharacterReadDTO>> GetCharacter(int id)
         {
             var character = await _repository.GetSpecificCharacterAsync(id);
@@ -54,12 +59,13 @@ namespace Assignment3.Controllers
             return charReadDTO;
         }
 
-        // PUT: api/Characters/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Update a specified Character
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="charEditDTO"></param>
+        /// <returns>NoContentResult object for response</returns>
         [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutCharacter(int id, CharacterEditDTO charEditDTO)
         {
             if (id != charEditDTO.Id)
@@ -76,8 +82,11 @@ namespace Assignment3.Controllers
             return NoContent();
         }
 
-        // POST: api/Characters
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Create a new Character
+        /// </summary>
+        /// <param name="charCreateDTO"></param>
+        /// <returns>CreatedAtAction object that produces a 201 status code</returns>
         [HttpPost]
         public async Task<ActionResult<Character>> PostCharacter(CharacterCreateDTO charCreateDTO)
         {
@@ -87,10 +96,12 @@ namespace Assignment3.Controllers
             return CreatedAtAction("GetCharacter", new { id = character.Id }, _mapper.Map<CharacterCreateDTO>(character));
         }
 
-        // DELETE: api/Characters/5
+        /// <summary>
+        /// (Safely) Deletes a specified Character
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>NoContentResult object for response</returns>
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteCharacter(int id)
         {
             if (!_repository.CharacterExists(id))

@@ -6,102 +6,141 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Assignment3.Models;
+using AutoMapper;
+using Assignment3.Repositories.Interfaces;
+using Assignment3.Models.DTOs.Movie;
 
 namespace Assignment3.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/movies")]
     [ApiController]
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class MoviesController : ControllerBase
     {
-        private readonly MovieDbContext _context;
+        private readonly IMovieRepository _repository;
+        private readonly IMapper _mapper;
 
-        public MoviesController(MovieDbContext context)
+        public MoviesController(IMovieRepository repo, IMapper mapper)
         {
-            _context = context;
+            _repository = repo;
+            _mapper = mapper;
         }
 
-        // GET: api/Movies
+        /// <summary>
+        /// Get all Movies
+        /// </summary>
+        /// <returns>List of Movies</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
+        public async Task<IEnumerable<MovieReadDTO>> GetMovies()
         {
-            return await _context.Movies.ToListAsync();
+            IEnumerable<Movie> movieList = await _repository.GetAllMoviesAsync();
+            List<MovieReadDTO> movieReadDTOList = _mapper.Map<List<MovieReadDTO>>(movieList);
+
+            return movieReadDTOList;
         }
 
-        // GET: api/Movies/5
+        /// <summary>
+        /// Get specified Movie
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>A Movie</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Movie>> GetMovie(int id)
+        public async Task<ActionResult<MovieReadDTO>> GetMovie(int id)
         {
-            var movie = await _context.Movies.FindAsync(id);
-
-            if (movie == null)
-            {
+            if (!_repository.MovieExists(id))
                 return NotFound();
-            }
 
-            return movie;
+            Movie movie = await _repository.GetSpecificMovieAsync(id);
+            MovieReadDTO movieReadDTO = _mapper.Map<MovieReadDTO>(movie);
+
+            return movieReadDTO;
         }
 
-        // PUT: api/Movies/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMovie(int id, Movie movie)
+        /// <summary>
+        /// Get all characters from specific movie
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>List of Characters</returns>
+        [HttpGet("{id}/characters")]
+        public async Task<ActionResult<IEnumerable<MovieCharacterDTO>>> GetMovieCharacters(int id)
         {
-            if (id != movie.Id)
-            {
+            if (!_repository.MovieExists(id))
+                return NotFound();
+
+            List<Character> movieChar = await _repository.GetAllCharactersInMovie(id);
+            List<MovieCharacterDTO> movieCharDTO = _mapper.Map<List<MovieCharacterDTO>>(movieChar);
+
+            return movieCharDTO;
+        }
+
+        /// <summary>
+        /// Update a specified Movie
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="movieEditDTO"></param>
+        /// <returns>NoContentResult object for response</returns>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutMovie(int id, MovieEditDTO movieEditDTO)
+        {
+            if (id != movieEditDTO.Id)
                 return BadRequest();
-            }
 
-            _context.Entry(movie).State = EntityState.Modified;
+            if (!_repository.MovieExists(id))
+                return NotFound();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MovieExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            Movie domainMovie = _mapper.Map<Movie>(movieEditDTO);
+            await _repository.UpdateMovieAsync(domainMovie);
 
             return NoContent();
         }
 
-        // POST: api/Movies
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Movie>> PostMovie(Movie movie)
+        /// <summary>
+        /// Update a specified Movie
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="characterIds"></param>
+        /// <returns>NoContentResult object for response</returns>
+        [HttpPut("{id}/characters")]
+        public async Task<IActionResult> PutMovieCharacters(int id, int[] characterIds)
         {
-            _context.Movies.Add(movie);
-            await _context.SaveChangesAsync();
+            if (!_repository.MovieExists(id))
+                return NotFound();
 
-            return CreatedAtAction("GetMovie", new { id = movie.Id }, movie);
+            await _repository.UpdateCharactersInMovie(id, characterIds);
+
+            return NoContent();
         }
 
-        // DELETE: api/Movies/5
+        /// <summary>
+        /// Create a new Movie
+        /// </summary>
+        /// <param name="movieEditDTO"></param>
+        /// <returns>CreatedAtAction object that produces a 201 status code</returns>
+        [HttpPost]
+        public async Task<ActionResult<Movie>> PostMovie(MovieEditDTO movieEditDTO)
+        {
+            Movie movie = _mapper.Map<Movie>(movieEditDTO);
+            movie = await _repository.AddMovieAsync(movie);
+
+            return CreatedAtAction("GetMovie", new { id = movie.Id }, _mapper.Map<MovieReadDTO>(movie));
+        }
+
+        /// <summary>
+        /// (Safely) Deletes a specified Movie
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>NoContentResult object for response</returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
-            var movie = await _context.Movies.FindAsync(id);
-            if (movie == null)
-            {
+            if (!_repository.MovieExists(id))
                 return NotFound();
-            }
 
-            _context.Movies.Remove(movie);
-            await _context.SaveChangesAsync();
+            await _repository.DeleteMovieAsync(id);
 
             return NoContent();
-        }
-
-        private bool MovieExists(int id)
-        {
-            return _context.Movies.Any(e => e.Id == id);
         }
     }
 }

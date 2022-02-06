@@ -98,11 +98,15 @@ namespace Assignment3.Repositories
             Franchise franchise = await _movieDbContext.Franchises.Include(f => f.Movies).FirstOrDefaultAsync(f => f.Id == id);
 
             List<Movie> editMovieList = new();
-
             foreach (int movieId in movieIds)
             {
-
+                Movie movie = _movieDbContext.Movies.Where(m => m.Id == movieId).FirstOrDefault();
+                editMovieList.Add(movie);
             }
+            franchise.Movies = editMovieList;
+
+            _movieDbContext.Entry(franchise).State = EntityState.Modified;
+            await _movieDbContext.SaveChangesAsync();
         }
     }
 }
