@@ -8,6 +8,8 @@ namespace Assignment3.Models.DTOs.Movie
         public string Genre { get; set; }
         public int ReleaseYear { get; set; }
         public string Director { get; set; }
+        public string Photo { get; set; }
+        public string Trailer { get; set; }
         // Relationships
         public List<int> Characters { get; set; }
         public int FranchiseId { get; set; }

@@ -27,7 +27,7 @@ namespace Assignment3.Models
         public string Trailer { get; set; }
         // Relationships
         public ICollection<Character> Characters { get; set; }
-        public int FranchiseId { get; set; }
+        public int? FranchiseId { get; set; }
         public Franchise Franchise { get; set; }
     }
 }

@@ -6,102 +6,110 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Assignment3.Models;
+using Assignment3.Repositories.Interfaces;
+using Assignment3.Models.DTOs.Character;
+using AutoMapper;
 
 namespace Assignment3.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/characters")]
     [ApiController]
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class CharactersController : ControllerBase
     {
-        private readonly MovieDbContext _context;
+        private readonly ICharacterRepository _repository;
+        private readonly IMapper _mapper;
 
-        public CharactersController(MovieDbContext context)
+        public CharactersController(ICharacterRepository repo, IMapper mapper)
         {
-            _context = context;
+            _repository = repo;
+            _mapper = mapper;
         }
 
-        // GET: api/Characters
+        /// <summary>
+        /// Get all Characters
+        /// </summary>
+        /// <returns>List of Characters</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Character>>> GetCharacters()
+        public async Task<IEnumerable<CharacterReadDTO>> GetCharacters()
         {
-            return await _context.Characters.ToListAsync();
+            IEnumerable<Character> characters = await _repository.GetAllCharactersAsync();
+            List<CharacterReadDTO> charReadDTO = _mapper.Map<List<CharacterReadDTO>>(characters);
+
+            return charReadDTO;
         }
 
-        // GET: api/Characters/5
+        /// <summary>
+        /// Get specified Character
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>A Character</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Character>> GetCharacter(int id)
+        public async Task<ActionResult<CharacterReadDTO>> GetCharacter(int id)
         {
-            var character = await _context.Characters.FindAsync(id);
+            var character = await _repository.GetSpecificCharacterAsync(id);
 
             if (character == null)
-            {
                 return NotFound();
-            }
 
-            return character;
+            CharacterReadDTO charReadDTO = _mapper.Map<CharacterReadDTO>(character);
+
+            return charReadDTO;
         }
 
-        // PUT: api/Characters/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Update a specified Character
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="charEditDTO"></param>
+        /// <returns>NoContentResult object for response</returns>
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCharacter(int id, Character character)
+        public async Task<IActionResult> PutCharacter(int id, CharacterEditDTO charEditDTO)
         {
-            if (id != character.Id)
+            if (id != charEditDTO.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(character).State = EntityState.Modified;
+            if (!_repository.CharacterExists(id))
+                return NotFound();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CharacterExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            Character domainCharacter = _mapper.Map<Character>(charEditDTO);
+            await _repository.UpdateCharacterAsync(domainCharacter);
 
             return NoContent();
         }
 
-        // POST: api/Characters
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Create a new Character
+        /// </summary>
+        /// <param name="charCreateDTO"></param>
+        /// <returns>CreatedAtAction object that produces a 201 status code</returns>
         [HttpPost]
-        public async Task<ActionResult<Character>> PostCharacter(Character character)
+        public async Task<ActionResult<Character>> PostCharacter(CharacterCreateDTO charCreateDTO)
         {
-            _context.Characters.Add(character);
-            await _context.SaveChangesAsync();
+            Character character = _mapper.Map<Character>(charCreateDTO);
+            character = await _repository.AddCharacterAsync(character);
 
-            return CreatedAtAction("GetCharacter", new { id = character.Id }, character);
+            return CreatedAtAction("GetCharacter", new { id = character.Id }, _mapper.Map<CharacterCreateDTO>(character));
         }
 
-        // DELETE: api/Characters/5
+        /// <summary>
+        /// (Safely) Deletes a specified Character
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>NoContentResult object for response</returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCharacter(int id)
         {
-            var character = await _context.Characters.FindAsync(id);
-            if (character == null)
-            {
+            if (!_repository.CharacterExists(id))
                 return NotFound();
-            }
 
-            _context.Characters.Remove(character);
-            await _context.SaveChangesAsync();
+            await _repository.DeleteCharacterAsync(id);
 
             return NoContent();
-        }
-
-        private bool CharacterExists(int id)
-        {
-            return _context.Characters.Any(e => e.Id == id);
         }
     }
 }
