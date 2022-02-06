@@ -11,6 +11,9 @@ namespace Assignment3.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class CharactersController : ControllerBase
     {
         private readonly MovieDbContext _context;
