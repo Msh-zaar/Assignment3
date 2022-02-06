@@ -17,6 +17,9 @@ namespace Assignment3.Profiles
                 .Select(c => c.Id)
                 .ToList()));
 
+            //Map Movie to Franchise
+            CreateMap<Movie, FranchiseMovieDTO>();
+
             //Edit
             CreateMap<MovieEditDTO, Movie>();
 
